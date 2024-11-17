@@ -1,0 +1,66 @@
+{% load static %}
+<aside class="left-sidebar">
+  <!-- Sidebar scroll-->
+  <div>
+    <div class="brand-logo d-flex align-items-center justify-content-between">
+      <a href="pages/index.html" class="text-nowrap logo-img">
+        <img src="{% static "/images/logos/favicon.png" %}" width="100" alt="" />
+      </a>
+      <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+        <i class="ti ti-x fs-8"></i>
+      </div>
+    </div>
+    <!-- Sidebar navigation-->
+    <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+      <ul id="sidebarnav">
+        <li class="nav-small-cap">
+          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+          <span class="hide-menu">Chức năng bán hàng</span>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/product" aria-expanded="false">
+            <span>
+              <i class="ti ti-device-mobile-vibration"></i>
+            </span>
+            <span class="hide-menu">Điện thoại</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/product/?accessory=true" aria-expanded="false">
+            <span>
+              <i class="ti ti-article"></i>
+            </span>
+            <span class="hide-menu">Phụ kiện</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/customer" aria-expanded="false">
+            <span>
+              <i class="ti ti-alert-circle"></i>
+            </span>
+            <span class="hide-menu">Thông tin khách hàng</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/selling" aria-expanded="false">
+            <span>
+              <i class="ti ti-cards"></i>
+            </span>
+            <span class="hide-menu">Thanh toán</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/statistics" aria-expanded="false">
+            <span>
+              <i class="ti ti-chart-bar"></i>
+            </span>
+            <span class="hide-menu">Thống kê</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- End Sidebar navigation -->
+  </div>
+  <!-- End Sidebar scroll-->
+</aside>
+<!-- Sidebar End -->
