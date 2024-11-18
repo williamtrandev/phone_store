@@ -11,34 +11,39 @@
       </li>
     </ul>
     <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
-      <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+    <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
         <li class="nav-item dropdown">
-          <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <img id="userAvatar" src="{% static "/images/profile/user.jpg" %}" alt="" width="35" height="35" class="rounded-circle">
-          </a>
-          <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-            <div class="message-body">
-              <a href="{% url 'index' %}" class="d-flex align-items-center gap-2 dropdown-item">
-                <i class="ti ti-user fs-6"></i>
-                <p class="mb-0 fs-3">{{ request.session.staff.fullname }}</p>
-              </a>
-              <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item"
-                data-bs-toggle="modal" data-bs-target="#avatarModal">
-                <i class="ti ti-user-circle fs-6"></i>
-                <p class="mb-0 fs-3">Đổi ảnh đại diện</p>
-              </a>
-              <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item"
-                data-bs-toggle="modal" data-bs-target="#passwordModal">
-                <i class="ti ti-key fs-6"></i>
-                <p class="mb-0 fs-3">Đổi mật khẩu</p>
-              </a>
-              <a href="{% url 'logout' %}" class="btn btn-outline-primary mx-3 mt-2 d-block">Đăng xuất</a>
+          {% if request.session.customer %}
+            <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <img id="userAvatar" src="{% static '/images/profile/user.jpg' %}" alt="" width="35" height="35" class="rounded-circle">
+            </a>
+            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+              <div class="message-body">
+                <a href="{% url 'index' %}" class="d-flex align-items-center gap-2 dropdown-item">
+                  <i class="ti ti-user fs-6"></i>
+                  <p class="mb-0 fs-3">{{ request.session.customer.fullname }}</p>
+                </a>
+                <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item"
+                  data-bs-toggle="modal" data-bs-target="#avatarModal">
+                  <i class="ti ti-user-circle fs-6"></i>
+                  <p class="mb-0 fs-3">Đổi ảnh đại diện</p>
+                </a>
+                <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item"
+                  data-bs-toggle="modal" data-bs-target="#passwordModal">
+                  <i class="ti ti-key fs-6"></i>
+                  <p class="mb-0 fs-3">Đổi mật khẩu</p>
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-primary mx-3 mt-2 d-block">Đăng xuất</a>
+              </div>
             </div>
-          </div>
+          {% else %}
+            <a class="btn btn-outline-primary mx-3 mt-2 d-block" href="{% url 'login' %}">Đăng nhập</a>
+          {% endif %}
         </li>
-      </ul>
-    </div>
+    </ul>
+</div>
+
   </nav>
 </header>
 <!--  Header End -->

@@ -1,0 +1,66 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block title %}Trang Chủ{% endblock %}
+
+{% block body %}
+<div class="col-md-5 mx-auto mb-4">
+    <form action="{% url 'index' %}" method="get">
+        <div class="input-group">
+            <input class="form-control border-end-0 border" type="text" placeholder="Tên phụ kiện" id="search-input" name="keyword" value="{{ request.GET.keyword }}">
+            <span class="input-group-append">
+                <button class="btn btn-outline-secondary bg-white border-start-0 border-bottom-0 border ms-n4" type="submit">
+                    <i class="ti ti-search"></i>
+                </button>
+            </span>
+        </div>
+    </form>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-start">
+        <button class="btn border me-2 btn-filter" data-id="-1">Tất cả</button>
+        {% if categories|length > 0 %}
+            {% for category in categories %}
+                <button class="btn border me-2 btn-filter" data-id="{{ category.id }}">{{ category.name }}</button>
+            {% endfor %}
+        {% else %}
+            <p>No categories available</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mb-5 container-phones">
+    {% if products|length > 0 %}
+        {% for product in products %}
+            <div class="col-sm-6 col-lg-3 mb-4" data-aos="fade-up">
+                <div class="block-4 text-center border shadow-lg position-relative accessory-item" data-id="{{ product.id }}" data-category="{{ product.category.id }}">
+                    <figure class="block-4-image p-3">
+                        <a href="#">
+                            <img src="{{ product.image.url }}" alt="Image placeholder" class="img-fluid" style="max-height: 250px">
+                        </a>
+                    </figure>
+                    <div class="block-4-text px-3 pb-3 text-start">
+                        <h3 class="mb-3 w-100">
+                            <a href="#"><span class="text-name-accessory">{{ product.name }}</span></a>
+                        </h3>
+                        <p class="text-primary font-weight-bold">Giá bán: <span class="text-warning text-retail-price-accessory">{{ product.retail_price|intcomma }}</span></p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No products available</p>
+    {% endif %}
+
+</div>
+
+<div class="d-flex justify-content-center">
+    <button type="button" class="btn btn-info" id="prevBtn" disabled><i class="ti ti-chevron-left"></i></button>
+    <div class="border p-2 text-center" style="width: 80px;">
+        <span id="curPage">1</span>/<span id="pageNum">{{ page_num }}</span>
+    </div>
+    <button type="button" class="btn btn-info" id="nextBtn"><i class="ti ti-chevron-right"></i></button>
+</div>
+
+{% endblock %}

@@ -36,14 +36,17 @@
                     <label for="password" class="form-label">Mật khẩu</label>
                     <input type="password" name="password" class="form-control" id="password" required>
                   </div>
-
+                    {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                      {{ error_message }}
+                    </div>
+                    {% endif %}
                   <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Đăng nhập</button>
 
                   <div class="d-flex align-items-center justify-content-center">
                     <p class="fs-4 mb-0 fw-bold">Bạn là người mới?</p>
                     <a class="text-primary fw-bold ms-2" href="{% url 'register' %}">Tạo tài khoản</a>
                   </div>
-
                 </form>
               </div>
             </div>
@@ -53,6 +56,5 @@
     </div>
   </div>
   <script src="{% static "/libs/bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
-  <script src="{% static "/js/doLogin.js" %}"></script>
 </body>
 </html>

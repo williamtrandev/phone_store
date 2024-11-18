@@ -1,0 +1,269 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Giỏ hàng{% endblock %}
+
+{% block body %}
+    <div class="container">
+    <div class="row mb-5">
+        <form class="col-md-12" method="post">
+            <div class="site-blocks-table">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th class="product-thumbnail">Ảnh</th>
+                        <th class="product-name">Tên sản phẩm</th>
+                        <th class="product-price">Giá</th>
+                        <th class="product-quantity">Số lượng</th>
+                        <th class="product-total">Tổng</th>
+                        <th class="product-remove">Xóa khỏi giỏ</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for cartItem in carts %}
+                    <tr data-id="{{ cartItem.id }}">
+                        <td class="product-thumbnail">
+                            <img src="{{ cartItem.product.image.url }}"  alt="Image" class="img-fluid" style="max-height: 100px">
+                        </td>
+                        <td class="product-name">
+                            {% if cartItem.product.is_phone %}
+                                <h2 class="h5 text-black">
+                                    <span class="text-name-phone">{{ cartItem.product.name }}</span>
+                                    {% if cartItem.product.color %}
+                                        <span class="text-color-phone">{{ cartItem.product.color }}</span>
+                                    {% endif %}
+                                    {% if cartItem.product.ram %}
+                                        <span class="text-ram-phone">{{ cartItem.product.ram }}GB</span>
+                                    {% endif %}
+                                    {% if cartItem.product.rom %}
+                                        <span class="text-rom-phone">{{ cartItem.product.rom }}GB</span>
+                                    {% endif %}
+                                </h2>
+                            {% else %}
+                                <h2 class="h5 text-black">{{ cartItem.product.name }}</h2>
+                            {% endif %}
+                        </td>
+                        <td>{{ cartItem.product.retail_price|intcomma }} đ</td>
+                        <td>
+                            <div class="input-group mb-3" style="max-width: 150px;">
+                                <div class="input-group-prepend">
+                                    <button class="btn btn-outline-primary js-btn-minus" type="button" {% if cartItem.quantity == 1 %}disabled{% endif %}>&minus;</button>
+                                </div>
+                                <input type="text" class="form-control text-center" value="{{ cartItem.quantity }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary js-btn-plus" type="button">&plus;</button>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ cartItem.total_price|intcomma }} đ</td>
+                        <td data-item-id="{{ cartItem.id }}"><button type="button" class="btn btn-primary btn-sm btn-remove">X</button></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+
+{% if carts %}
+    <div class="cart-controls-container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row mb-5">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <button class="btn btn-primary btn-md btn-block btn-update">Cập nhật giỏ hàng</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary btn-md btn-block" onclick="window.location.href='/phones'">Tiếp tục mua hàng</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pl-5">
+                <div class="row justify-content-end">
+                    <div class="col-md-7">
+                        <div class="row">
+                            <div class="col-md-12 text-right border-bottom mb-3">
+                                <h3 class="text-black h4 text-uppercase">Tổng tiền giỏ hàng</h3>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12 text-right">
+                                <h4 class="text-black total-cart">0đ</h4>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button class="btn btn-primary py-3 btn-block btn-order">Xác nhận đặt hàng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+</div>
+    <script>
+    $(function() {
+        // Update lần đầu load web
+        updateTotal();
+        function updateTotal() {
+            let total = 0;
+            $('tbody tr').each(function() {
+                const priceText = $(this).find('td').eq(4).text().replaceAll(',', '').replaceAll('đ', '');
+                total += parseInt(priceText);
+            });
+            $('.total-cart').text(total.toLocaleString('vi-VN').replaceAll('.', ',') + 'đ');
+        }
+
+        $('.js-btn-plus').click(function() {
+            const $input = $(this).parent().siblings('input');
+            const currentNum = parseInt($input.val()) + 1;
+            $input.val(currentNum);
+            if(currentNum > 1) {
+                $(this).closest('.input-group').find('.js-btn-minus').first().attr('disabled', false);
+            }
+            const tds = $(this).closest('tr').find('td');
+            const price = parseInt($(tds).eq(2).text().replaceAll(',', '').replaceAll('đ', ''));
+            const newPrice = currentNum * price;
+            const newPriceText = newPrice.toLocaleString('vi-VN').replaceAll('.', ',') + ' đ';
+            $(tds).eq(4).text(newPriceText);
+            updateTotal();
+        });
+
+        $('.js-btn-minus').click(function() {
+            const $input = $(this).parent().siblings('input');
+            const currentNum = parseInt($input.val()) - 1;
+            $input.val(currentNum);
+            if(currentNum === 1) {
+                $(this).attr('disabled', true);
+            }
+            console.log(currentNum)
+            const tds = $(this).closest('tr').find('td');
+            const price = parseInt($(tds).eq(2).text().replaceAll(',', '').replaceAll('đ', ''));
+            const newPrice = currentNum * price;
+            const newPriceText = newPrice.toLocaleString('vi-VN').replaceAll('.', ',') + ' đ';
+            console.log(newPriceText)
+            $(tds).eq(4).text(newPriceText);
+            updateTotal();
+        });
+
+        $('.btn-remove').click(function() {
+            const cartItemId = $(this).parent().data('item-id');
+            const trRemove = $(this).closest('tr');
+            Swal.fire({
+                title: "Cảnh báo",
+                text: "Bạn có chắc xóa khỏi giỏ hàng không!",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Có",
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    fetch(`/api/cart/${cartItemId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                        },
+                    })
+                        .then(res => {
+                            if(res.status === 204) {
+                                Swal.fire({
+                                    title: "Thành công",
+                                    text: "Đã xóa khỏi giỏ hàng",
+                                    icon: "success"
+                                });
+                                trRemove.remove();
+                            } else {
+                                throw new Error();
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire({
+                                title: "Không thành công",
+                                text: "Đã xảy ra lỗi",
+                                icon: "error"
+                            });
+                        })
+                }
+            });
+        });
+
+        $('.btn-update').click(function() {
+            $('tbody tr').each(function() {
+                const cartId = $(this).data('id');
+                const quantity = $(this).find('td').eq(3).find('input').val();
+                fetch(`/api/cart/${cartId}`, {
+                    method: 'PUT',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    },
+                    body: JSON.stringify({ quantity })
+                })
+            })
+            Swal.fire({
+                title: "Thành công",
+                text: "Đã cập nhật giỏ hàng",
+                icon: "success"
+            });
+        });
+
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
+
+        $('.btn-order').click(function() {
+            const numCartItem = $('tbody tr').length;
+            if(numCartItem === 0) {
+                Swal.fire({
+                    title: "Thông tin",
+                    text: "Vui lòng chọn mặt hàng sau đó thanh toán",
+                    icon: "question"
+                });
+                return;
+            }
+            fetch(`/api/order`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                },
+            })
+                .then(res => {
+                    if(!res.ok) {
+                        throw new Error();
+                    } else {
+                        Swal.fire({
+                            title: "Thành công",
+                            text: "Đặt hàng thành công",
+                            icon: "success"
+                        });
+                        setTimeout(() => {
+                            window.location.href = '/phones';
+                        }, 1000);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        title: "Lỗi",
+                        text: "Đặt hàng không thành công",
+                        icon: "error"
+                    });
+                })
+        });
+    })
+</script>
+{% endblock %}
