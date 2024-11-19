@@ -11,6 +11,9 @@ class Customer(models.Model):
     phone = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.fullname
+
     class Meta:
         db_table = 'customer'
 
@@ -28,6 +31,18 @@ class Product(models.Model):
     detail = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='images/products/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.is_phone:
+            details = []
+            if self.color:
+                details.append(f"Color: {self.color}")
+            if self.ram:
+                details.append(f"RAM: {self.ram}GB")
+            if self.rom:
+                details.append(f"ROM: {self.rom}GB")
+            return f"{self.name} ({', '.join(details)})"
+        return self.name
 
     class Meta:
         db_table = 'product'
@@ -59,9 +74,13 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('delivered', 'Delivered'),
+    ]
     id = models.CharField(default=generate_unique_id_24char, max_length=100, primary_key=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    order_status = models.CharField(max_length=100, default='pending')
+    order_status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     total_price = models.IntegerField(default=0)
 

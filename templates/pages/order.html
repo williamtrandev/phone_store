@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Danh sách đơn hàng{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="mb-5 text-center">Danh sách đơn hàng đã đặt</h1>
+
+        {% if orders %}
+        <div class="row">
+            {% for order in orders %}
+            <div class="col-md-12 mb-5">
+                <div class="order-card p-4 border shadow-sm">
+                    <h4 class="text-black">Đơn hàng #{{ order.id }}</h4>
+                    <p class="text-muted">Ngày đặt: {{ order.created_at|date:"d/m/Y" }}</p>
+
+                    <table class="table table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th class="product-thumbnail">Ảnh</th>
+                                <th class="product-name">Tên sản phẩm</th>
+                                <th class="product-quantity">Số lượng</th>
+                                <th class="product-price">Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.orderitem_set.all %}
+                            <tr>
+                                <td class="product-thumbnail">
+                                    <img src="{{ item.product.image.url }}" alt="Image" class="img-fluid" style="max-height: 100px">
+                                </td>
+                                <td class="product-name">
+                                    <h5>{{ item.product.name }}</h5>
+                                    {% if item.product.is_phone %}
+                                        {% if item.product.color %}
+                                            <p><strong>Màu sắc:</strong> {{ item.product.color }}</p>
+                                        {% endif %}
+                                        {% if item.product.ram %}
+                                            <p><strong>RAM:</strong> {{ item.product.ram }}GB</p>
+                                        {% endif %}
+                                        {% if item.product.rom %}
+                                            <p><strong>ROM:</strong> {{ item.product.rom }}GB</p>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td class="product-quantity">
+                                    {{ item.quantity }}
+                                </td>
+                                <td class="product-price">
+                                    {{ item.product.retail_price|intcomma }} đ
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-right">Tổng tiền: <span class="text-primary">{{ order.total_price|intcomma }} đ</span></h5>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            {% if order.order_status == 'pending' %}
+                                <button class="btn btn-warning btn-sm">Đang xử lý</button>
+                            {% else %}
+                                <button class="btn btn-success btn-sm">Đã giao</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="text-center">Bạn chưa có đơn hàng nào.</p>
+        {% endif %}
+    </div>
+{% endblock %}

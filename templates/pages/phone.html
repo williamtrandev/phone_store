@@ -4,22 +4,10 @@
 {% block title %}Trang Chủ{% endblock %}
 
 {% block body %}
-<div class="col-md-5 mx-auto mb-4">
-    <form action="{% url 'index' %}" method="get">
-        <div class="input-group">
-            <input class="form-control border-end-0 border" type="text" placeholder="Tên điện thoại" id="search-input" name="keyword" value="{{ request.GET.keyword }}">
-            <span class="input-group-append">
-                <button class="btn btn-outline-secondary bg-white border-start-0 border-bottom-0 border ms-n4" type="submit">
-                    <i class="ti ti-search"></i>
-                </button>
-            </span>
-        </div>
-    </form>
-</div>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="d-flex justify-content-start">
-        <button class="btn border me-2 btn-filter" data-id="-1">Tất cả</button>
+        <button class="btn border me-2 btn-filter btn-success" data-id="-1">Tất cả</button>
         {% if categories|length > 0 %}
             {% for category in categories %}
                 <button class="btn border me-2 btn-filter" data-id="{{ category.id }}">{{ category.name }}</button>
@@ -30,18 +18,23 @@
     </div>
 </div>
 
-<div class="row mb-5 container-phones">
+<div class="row mb-5 container-phones d-flex">
     {% if products|length > 0 %}
         {% for product in products %}
             <div class="col-sm-6 col-lg-3 mb-4" data-aos="fade-up">
-                <div class="block-4 text-center border shadow-lg position-relative phone-item" data-id="{{ product.id }}" data-category="{{ product.category.id }}">
+                <div class="block-4 text-center border shadow-lg position-relative phone-item h-100" 
+                    data-id="{{ product.id }}" 
+                    data-category="{{ product.category.id }}"
+                    onclick="location.href='{% url 'phone_detail' phone_id=product.id %}'"
+                    style="cursor: pointer;"
+                >
                     <figure class="block-4-image p-3">
                         <a href="#">
                             <img src="{{ product.image.url }}" alt="Image placeholder" class="img-fluid" style="max-height: 200px">
                         </a>
                     </figure>
                     <div class="block-4-text px-3 pb-3 text-start">
-                        <h3 class="mb-3 w-100">
+                        <h4 class="mb-3 w-100">
                             <a href="{% url 'phone_detail' phone_id=product.id %}"><span class="text-name-phone">{{ product.name }}</span>
                                 {% if product.color %}
                                     <span class="text-color-phone">{{ product.color }}</span>
@@ -53,7 +46,7 @@
                                     <span class="text-rom-phone">{{ product.rom }}GB</span>
                                 {% endif %}
                             </a>
-                        </h3>
+                        </h4>
                         <p class="text-primary font-weight-bold">Giá bán: <span class="text-warning text-retail-price-phone">{{ product.retail_price|intcomma }}</span></p>
                     </div>
                 </div>
@@ -65,12 +58,132 @@
 
 </div>
 
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center" id="groupBtn">
     <button type="button" class="btn btn-info" id="prevBtn" disabled><i class="ti ti-chevron-left"></i></button>
     <div class="border p-2 text-center" style="width: 80px;">
-        <span id="curPage">1</span>/<span id="pageNum">{{ page_num }}</span>
+        <span id="curPage">1</span>/<span id="pageNum">{{ page_total }}</span>
     </div>
-    <button type="button" class="btn btn-info" id="nextBtn"><i class="ti ti-chevron-right"></i></button>
+    <button type="button" class="btn btn-info" id="nextBtn" {% if page_total == 1 %} disabled {% endif %}>
+        <i class="ti ti-chevron-right"></i>
+    </button>
 </div>
-
+<script>
+    function renderPhone(phones) {
+        var phonesHtml = ``;
+        phones.forEach(phone => {
+            const retailPrice = phone.retail_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            const ram = phone.ram ? `${phone.ram} GB` : ''; 
+            const rom = phone.rom ? `${phone.rom} GB` : ''; 
+            const color = phone.color ? phone.color : ''; 
+            phonesHtml += `
+            <div class="col-sm-6 col-lg-3 mb-4 aos-init aos-animate" data-aos="fade-up">
+                <div class="block-4 text-center border shadow-lg position-relative phone-item h-100" 
+                    data-id="${phone.id}" 
+                    data-category="${phone.category_id}"
+                    onclick="location.href='/phones/${phone.id}'"
+                    style="cursor: pointer;"                
+                >
+                    <figure class="block-4-image p-3">
+                        <a href="#">
+                            <img src="${phone.image}" alt="Image placeholder" class="img-fluid" style="max-height: 200px">
+                        </a>
+                    </figure>
+                    <div class="block-4-text px-3 pb-3 text-start">
+                        <h4 class="mb-3 w-100">
+                            <a href="#"><span class="text-name-phone">${phone.name}</span> <span class="text-color-phone">${color}</span> <span class="text-ram-phone">${ram}</span> <span class="text-rom-phone">${rom}</span></a>
+                        </h4>
+                        <p class="text-primary font-weight-bold">Giá bán: <span class="text-warning text-retail-price-phone">${retailPrice}</span></p>
+                    </div>
+                </div>
+            </div>`;
+        });
+        $('.container-phones').empty().append(phonesHtml);
+    
+    }
+    $(function() {
+        let currentPage = 1;
+        let category = -1;
+        $('.btn-filter').click(function() {
+			currentPage = 1;
+			$('.btn-filter').removeClass('btn-success');
+			$(this).addClass('btn-success');
+			const idCategory = $(this).data('id');
+			category = idCategory;
+            fetch(`/api/phones/page/${currentPage}?category=${category !== -1 ? category : ''}`, {
+				headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                },
+			})
+				.then(res => res.json())
+				.then(data => {
+                    if (data.products.length == 0) {
+                        $('#groupBtn').addClass('d-none');
+                    } else {
+                        $('#groupBtn').removeClass('d-none');
+                    }
+					renderPhone(data.products);
+					$("#curPage").text(currentPage);
+					$("#pageNum").text(data.page_total);
+					$("#prevBtn").prop("disabled", true);
+					$("#nextBtn").prop("disabled", false);
+					if(currentPage == data.page_total) {
+						$("#nextBtn").prop("disabled", true);
+					}
+				})
+				.catch(err => {
+					console.error(err);
+					Swal.fire({
+						title: "Lỗi",
+						text: "Đã có lỗi xảy ra",
+						icon: "error"
+					});
+				})
+		});
+        
+        $("#nextBtn").click(function() {
+            currentPage++;
+            fetch(`/api/phones/page/${currentPage}?category=${category !== -1 ? category : ''}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                },
+			})
+            .then(res => res.json())
+            .then(data => {
+                renderPhone(data.products);
+                currentPage = data.current_page;
+                $("#curPage").text(currentPage);
+                $("#pageNum").text(data.page_total);
+                $("#prevBtn").prop("disabled", false);
+                if (currentPage == data.page_total) {
+                    $(this).prop("disabled", true);
+                }
+            })
+            .catch(err => console.log(err));
+        });
+        
+        $("#prevBtn").click(function() {
+            currentPage--;
+            fetch(`/api/phones/page/${currentPage}?category=${category !== -1 ? category : ''}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                },
+			})
+            .then(res => res.json())
+            .then(data => {
+                renderPhone(data.products);
+                currentPage = data.current_page;
+                $("#curPage").text(currentPage);
+                $("#pageNum").text(data.page_total);
+                $("#nextBtn").prop("disabled", false);
+                if (currentPage == 1) {
+                    $("#prevBtn").prop("disabled", true);
+                }
+            })
+            .catch(err => console.log(err));
+        });
+    })
+</script>
 {% endblock %}

@@ -3,8 +3,9 @@
   <!-- Sidebar scroll-->
   <div>
     <div class="brand-logo d-flex align-items-center justify-content-between">
-      <a href="pages/index.html" class="text-nowrap logo-img">
+      <a href="/" class="text-nowrap logo-img">
         <img src="{% static "/images/logos/favicon.png" %}" width="100" alt="" />
+          Phone Store
       </a>
       <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
         <i class="ti ti-x fs-8"></i>
@@ -15,7 +16,7 @@
       <ul id="sidebarnav">
         <li class="nav-small-cap">
           <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-          <span class="hide-menu">Chức năng bán hàng</span>
+          <span class="hide-menu">Sản phẩm</span>
         </li>
         <li class="sidebar-item my-3">
           <a class="sidebar-link" href="/phones" aria-expanded="false">
@@ -33,14 +34,32 @@
             <span class="hide-menu">Phụ kiện</span>
           </a>
         </li>
+        {% if request.session.customer %}  
         <li class="sidebar-item my-3">
-          <a class="sidebar-link" href="/cart" aria-expanded="false">
+          <a class="sidebar-link position-relative" href="/cart" aria-expanded="false">
             <span>
               <i class="ti ti-cards"></i>
             </span>
             <span class="hide-menu">Thanh toán</span>
+            <span 
+                id="cart-badge" 
+                class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center
+                {% if not request.session.cart_quantity or request.session.cart_quantity == 0 %} d-none {% endif %}"
+                style="width: 30px; height: 30px"
+            >
+                {{ request.session.cart_quantity }}
+            </span>
           </a>
         </li>
+        <li class="sidebar-item my-3">
+          <a class="sidebar-link position-relative" href="/order" aria-expanded="false">
+            <span>
+              <i class="ti ti-droplet"></i>
+            </span>
+            <span class="hide-menu">Đơn hàng của bạn</span>
+          </a>
+        </li>
+        {% endif %}
       </ul>
     </nav>
     <!-- End Sidebar navigation -->

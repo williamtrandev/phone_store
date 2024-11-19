@@ -28,7 +28,9 @@
                     {% endif %}
                 </h2>
             
-                <p class="fs-4 lh-lg mb-4">{{ product.detail }}</p>
+                {% if product.detail %}
+                    <p class="fs-4 lh-lg mb-4">{{ product.detail }}</p>
+                {% endif %}
             
                 <div class="d-flex align-items-center mb-5">
                     <h3 class="text-primary font-weight-bold">{{ product.retail_price|intcomma }}</h3>
@@ -47,6 +49,18 @@
     </div>
     <script>
         $(document).ready(function() {
+            function updateCartBadge(count) {
+                const $cartBadge = $("#cart-badge"); 
+                count = Number(count);
+                if (count > 0) {
+                    $cartBadge.text(count);       
+                    $cartBadge.removeClass("d-none"); 
+                } else {
+                    $cartBadge.addClass("d-none");   
+                }
+            }
+
+            
             $('#add-to-cart-btn').click(function() {
                 const quantity = $('#quantity').val();
                 const productId = "{{ product.id }}"; 
@@ -65,14 +79,21 @@
                     })
                 })
                 .then(response => {
-                    if (response.status === 201 || response.status === 200) {
+                    if (response.status === 200 || response.status === 201) {
+                        return response.json();
+                    } else if (response.status === 401) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công!',
-                            text: 'Thêm sản phẩm vào giỏ hàng thành công',
-                            confirmButtonText: 'OK',
+                            icon: 'info',
+                            title: 'Thông báo!',
+                            text: 'Vui lòng đăng nhập để đặt hàng',
+                            confirmButtonText: 'Đăng nhập',
+                            showCancelButton: true,
+                            cancelButtonText: 'Hủy',
+                            preConfirm: () => {
+                                window.location.href = '/login';
+                            }
                         });
-                        
+                        throw new Error('User not logged in');
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -80,8 +101,20 @@
                             text: 'Thêm sản phẩm vào giỏ hàng thất bại',
                             confirmButtonText: 'Thử lại',
                         });
+                        throw new Error('Failed to add product');
                     }
-                    
+                })
+                .then(data => {
+                    if (data && data.cart_quantity) {
+                        const totalQuantity = data.cart_quantity;
+                        updateCartBadge(totalQuantity); 
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: 'Thêm sản phẩm vào giỏ hàng thành công',
+                            confirmButtonText: 'OK',
+                        });
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);

@@ -12,7 +12,9 @@ urlpatterns = [
     path('phones', product_view.product_page, name="phone_list"),
     path('phones/<str:phone_id>', product_view.product_detail, name="phone_detail"),
     path('accessories', product_view.product_page, name="accessory_list"),
-
+    path('accessories/<str:accessory_id>', product_view.accessory_detail, name="accessory_detail"),
+    path('api/phones/page/<int:page>', product_view.api_list_product_paging, name="api_list_phone_paging"),
+    path('api/accessories/page/<int:page>', product_view.api_list_product_paging, name="api_list_accessory_paging"),
 
     # Cart
     path('api/cart', checkout_view.add_product_to_cart, name="add_product_to_cart"),
@@ -21,4 +23,5 @@ urlpatterns = [
 
     # Order
     path('api/order', checkout_view.checkout, name="checkout"),
+    path('order', checkout_view.order_page, name="order_page"),
 ]

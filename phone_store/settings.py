@@ -31,7 +31,7 @@ except Exception as e:
 
 DATABASE = CONFIG["database"]
 MYSQL = DATABASE['mysql_db']
-
+LIMIT_PAGING = CONFIG["limit_paging"]
 
 
 # Quick-start development settings - unsuitable for production

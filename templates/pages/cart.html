@@ -177,6 +177,12 @@
                                     icon: "success"
                                 });
                                 trRemove.remove();
+                                let total_item = 0;
+                                $('tbody tr').each(function() {
+                                    const quantity = $(this).find('td').eq(3).find('input').val();
+                                    total_item += Number(quantity)
+                                });
+                                updateCartBadge(total_item);
                             } else {
                                 throw new Error();
                             }
@@ -194,9 +200,11 @@
         });
 
         $('.btn-update').click(function() {
+            let total_item = 0;
             $('tbody tr').each(function() {
                 const cartId = $(this).data('id');
                 const quantity = $(this).find('td').eq(3).find('input').val();
+                total_item += Number(quantity)
                 fetch(`/api/cart/${cartId}`, {
                     method: 'PUT',
                     headers: {
@@ -206,6 +214,7 @@
                     body: JSON.stringify({ quantity })
                 })
             })
+            updateCartBadge(total_item);
             Swal.fire({
                 title: "Thành công",
                 text: "Đã cập nhật giỏ hàng",
@@ -213,16 +222,17 @@
             });
         });
 
-        function getCookie(name) {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    return cookie.substring(name.length + 1);
-                }
+        function updateCartBadge(count) {
+            const $cartBadge = $("#cart-badge"); 
+            count = Number(count);
+            if (count > 0) {
+                $cartBadge.text(count);       
+                $cartBadge.removeClass("d-none"); 
+            } else {
+                $cartBadge.addClass("d-none");   
             }
-            return null;
         }
+
 
         $('.btn-order').click(function() {
             const numCartItem = $('tbody tr').length;
